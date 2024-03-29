@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 PORT ?= 8000
 
 start:
@@ -20,3 +21,17 @@ compose-build:
 
 compose-down:
 	docker-compose down -v
+=======
+install:
+	composer install
+
+validate:
+	composer validate
+
+inspect:
+	composer exec --verbose phpstan analyse -- -c phpstan.neon
+
+PORT ?= 8000
+start:
+	PHP_CLI_SERVER_WORKERS=5 php -S 0.0.0.0:$(PORT) -t public
+>>>>>>> 6744e6b81a027ab77b3d3cdf5ed8ae53c549210f
