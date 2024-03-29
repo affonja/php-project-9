@@ -1,0 +1,23 @@
+{
+    "name": "hexlet/code",
+    "description": "project3",
+    "type": "project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "affonja"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require-dev": {
+        "squizlabs/php_codesniffer": "4.0.x-dev",
+        "phpstan/phpstan-strict-rules": "1.6.x-dev"
+    },
+    "require": {
+        "slim/slim": "4.x-dev",
+        "slim/psr7": "dev-master",
+        "slim/http": "dev-master",
+        "slim/php-view": "3.x-dev",
+        "php-di/php-di": "dev-master"
+    }
+}
