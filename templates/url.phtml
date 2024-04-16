@@ -4,6 +4,7 @@
  * @var string $id
  * @var string $siteUrl
  * @var string $created
+ * @var array $flash
  *
  * @var string $code
  * @var string $h1
@@ -15,6 +16,13 @@
 $code = $h1 = $title = $descript = $data = '%%$%%';
 ?>
 <?= $this->fetch('header.phtml') ?>
+<?php
+if (!empty($flash)): ?>
+    <div class="alert alert-success" role="alert">
+        <?= $flash['success'][0]; ?>
+    </div>
+<?php
+endif; ?>
 
 <main>
     <div class="container">
