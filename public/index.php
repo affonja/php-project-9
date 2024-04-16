@@ -6,6 +6,7 @@ use Slim\Factory\AppFactory;
 use DI\Container;
 use PostgreSQLTutorial\Connection;
 use App\Database;
+use Carbon\Carbon;
 
 require __DIR__ . '/../vendor/autoload.php';
 
@@ -28,17 +29,20 @@ $app->get('/', function ($request, $response) {
 })->setName('main');
 
 $app->get('/urls', function ($request, $response) use ($pdo) {
-//    $sql = "select id from urls where name='$siteUrl'";
-//    $id = $pdo->query($sql)[0]['id'];
     return $this->get('renderer')->render($response, 'urls.phtml');
-})->setName('all');
+})->setName('urls');
 
 $app->post('/urls', function ($request, $response) use ($pdo) {
     $siteUrl = $request->getParam('url');
     $sql = "select id from urls where name='$siteUrl'";
-    $id = $pdo->query($sql)[0]['id'];
-    return $response->withStatus(302)->withHeader('Location', "/urls/$id");
-})->setName('urls1');
+    $isExist = !(($pdo->query($sql) === null));
+    if ($isExist) {
+        $id = $pdo->query($sql)[0]['id'];
+        return $response->withStatus(302)->withHeader('Location', "/urls/$id");
+    }
+    $idNew = $pdo->insert($siteUrl);
+    return $response->withStatus(302)->withHeader('Location', "/urls/$idNew");
+})->setName('url');
 
 $app->get('/urls/{id}', function ($request, $response, $args) use ($pdo) {
     $sql = "select * from urls where id={$args['id']}";

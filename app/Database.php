@@ -2,6 +2,8 @@
 
 namespace App;
 
+use Carbon\Carbon;
+
 class Database
 {
     private $pdo;
@@ -32,14 +34,20 @@ class Database
         return $pdo;
     }
 
-    public function insert()
+    public function insert($siteUrl)
     {
+        $date = Carbon::now()->toDateTimeString();
+        $sql = "insert into urls(name, created_at) VALUES ('$siteUrl', '$date')";
+        $this->pdo->exec($sql);
+        return $this->pdo->lastInsertId();
     }
 
-    public function query($sql)
+    public function query($sql): array|null
     {
-        $result = $this->pdo->query($sql)->fetchAll(\PDO::FETCH_ASSOC);
-        return $result;
+        if ($this->pdo->query($sql)->rowCount() > 0) {
+            return $this->pdo->query($sql)->fetchAll(\PDO::FETCH_ASSOC);
+        }
+        return null;
     }
 
     public function createTable()
