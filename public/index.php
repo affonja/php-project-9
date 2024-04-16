@@ -4,30 +4,47 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Factory\AppFactory;
 use DI\Container;
+use PostgreSQLTutorial\Connection;
+use App\Database;
 
 require __DIR__ . '/../vendor/autoload.php';
 
+
+$pdo = new Database();
+$urls = $pdo->createTable();
+
+
 $app = AppFactory::create();
-
-//$app->get(
-//    '/', function (Request $request, Response $response, $args) {
-//    $response->getBody()->write("Hello world!");
-//    return $response;
-//}
-//);
-
 $container = new Container();
 $container->set('renderer', function () {
-    // Параметром передается базовая директория, в которой будут храниться шаблоны
     return new \Slim\Views\PhpRenderer(__DIR__ . '/../templates');
 });
 $app = AppFactory::createFromContainer($container);
 $app->addErrorMiddleware(true, true, true);
+$router = $app->getRouteCollector()->getRouteParser();
 
+$app->get('/', function ($request, $response) {
+    return $this->get('renderer')->render($response, 'main.phtml');
+})->setName('main');
 
-$app->get('/', function ($request, $response, $args) {
-    $params = ['title' => 'Анализатор', 'name' => 'Анализатор страниц'];
-    return $this->get('renderer')->render($response, 'layout.phtml', $params);
-});
+$app->get('/urls', function ($request, $response) use ($pdo) {
+//    $sql = "select id from urls where name='$siteUrl'";
+//    $id = $pdo->query($sql)[0]['id'];
+    return $this->get('renderer')->render($response, 'urls.phtml');
+})->setName('all');
+
+$app->post('/urls', function ($request, $response) use ($pdo) {
+    $siteUrl = $request->getParam('url');
+    $sql = "select id from urls where name='$siteUrl'";
+    $id = $pdo->query($sql)[0]['id'];
+    return $response->withStatus(302)->withHeader('Location', "/urls/$id");
+})->setName('urls1');
+
+$app->get('/urls/{id}', function ($request, $response, $args) use ($pdo) {
+    $sql = "select * from urls where id={$args['id']}";
+    $query = $pdo->query($sql)[0];
+    $params = ['id' => $query['id'], 'siteUrl' => $query['name'], 'created' => $query['created_at']];
+    return $this->get('renderer')->render($response, 'url.phtml', $params);
+})->setName('urls2');
 
 $app->run();
