@@ -26,6 +26,7 @@
     "slim/php-view": "^3.0",
     "php-di/php-di": "dev-master",
     "ext-pdo": "*",
-    "nesbot/carbon": "^3.0@dev"
+    "nesbot/carbon": "^3.0@dev",
+    "slim/flash": "dev-master"
   }
 }

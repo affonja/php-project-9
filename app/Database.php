@@ -42,7 +42,7 @@ class Database
         return $this->pdo->lastInsertId();
     }
 
-    public function query($sql): array|null
+    public function query(string $sql): array|null
     {
         if ($this->pdo->query($sql)->rowCount() > 0) {
             return $this->pdo->query($sql)->fetchAll(\PDO::FETCH_ASSOC);

@@ -4,9 +4,7 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Factory\AppFactory;
 use DI\Container;
-use PostgreSQLTutorial\Connection;
 use App\Database;
-use Carbon\Carbon;
 
 require __DIR__ . '/../vendor/autoload.php';
 
@@ -29,7 +27,10 @@ $app->get('/', function ($request, $response) {
 })->setName('main');
 
 $app->get('/urls', function ($request, $response) use ($pdo) {
-    return $this->get('renderer')->render($response, 'urls.phtml');
+    $sql = "select * from urls";
+    $sites = $pdo->query($sql);
+    $params = ['sites' => $sites];
+    return $this->get('renderer')->render($response, 'urls.phtml', $params);
 })->setName('urls');
 
 $app->post('/urls', function ($request, $response) use ($pdo) {
