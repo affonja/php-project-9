@@ -23,7 +23,7 @@ class Database
         $conStr = sprintf(
             "pgsql:host=%s;port=%d;dbname=%s;user=%s;password=%s",
             $databaseUrl['host'],
-            $databaseUrl['port'],
+            $databaseUrl['port'] || 5432,
             ltrim($databaseUrl['path'], '/'),
             $databaseUrl['user'],
             $databaseUrl['pass']
