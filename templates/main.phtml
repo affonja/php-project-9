@@ -1,4 +1,11 @@
 <?= $this->fetch('header.phtml') ?>
+<?php
+if (!empty($flash)): ?>
+    <div class="alert alert-danger" role="alert">
+        <?= $flash['error'][0]; ?>
+    </div>
+<?php
+endif; ?>
 
 <main>
     <div class="container">
@@ -12,7 +19,7 @@
                     <div class="mb-3 col-8">
                         <label for="adress" class="visually-hidden">Адрес сайта</label>
                         <input type="text" class="form-control" id="adress"
-                               aria-describedby="emailHelp" placeholder="url" name="url">
+                               aria-describedby="emailHelp" placeholder="url" name="url[name]" maxlength="255">
                     </div>
                     <div class="col-3">
                         <button type="submit" class="btn btn-primary">Проверить</button>
@@ -26,7 +33,7 @@
 </main>
 
 <script>
-    
+
 </script>
 
 </body>

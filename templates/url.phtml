@@ -30,7 +30,7 @@ endif; ?>
 
         <div class="row mt-5">
             <h2 class="p-0">Сайт: <?= $siteUrl; ?></h2>
-            <table class="table table-bordered table-hover text-nowrap">
+            <table class="table table-bordered table-hover text-nowrap" data-test="url">
                 <tr>
                     <td>ID</td>
                     <td><?= $id; ?></td>
@@ -49,7 +49,7 @@ endif; ?>
         <div class="row mt-3">
             <h3 class="p-0">Проверки</h3>
             <button type="submit" class="btn btn-primary col-2 mt-2">Запустить проверку</button>
-            <table class="table table-bordered table-hover mt-3">
+            <table class="table table-bordered table-hover mt-3" data-test="checks">
                 <thead>
                 <tr>
                     <th>ID</th>

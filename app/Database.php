@@ -15,17 +15,18 @@ class Database
 
     public function connect(): \PDO
     {
-        $params = parse_ini_file('database.ini');
-        if ($params === false) {
+        $databaseUrl = parse_url(getenv('DATABASE_URL'));
+        if ($databaseUrl === false) {
             throw new \Exception("Error reading database configuration file");
         }
+
         $conStr = sprintf(
             "pgsql:host=%s;port=%d;dbname=%s;user=%s;password=%s",
-            $params['host'],
-            $params['port'],
-            $params['database'],
-            $params['user'],
-            $params['password']
+            $databaseUrl['host'],
+            $databaseUrl['port'],
+            ltrim($databaseUrl['path'], '/'),
+            $databaseUrl['user'],
+            $databaseUrl['pass']
         );
 
         $pdo = new \PDO($conStr);

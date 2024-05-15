@@ -27,6 +27,7 @@
     "php-di/php-di": "dev-master",
     "ext-pdo": "*",
     "nesbot/carbon": "^3.0@dev",
-    "slim/flash": "dev-master"
+    "slim/flash": "dev-master",
+    "vlucas/valitron": "dev-master"
   }
 }

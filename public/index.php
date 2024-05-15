@@ -29,26 +29,46 @@ $router = $app->getRouteCollector()->getRouteParser();
 
 
 $app->get('/', function ($request, $response) {
-    return $this->get('renderer')->render($response, 'main.phtml');
+    $messages = $this->get('flash')->getMessages();
+    $params = [
+        'flash' => $messages
+    ];
+    return $this->get('renderer')->render($response, 'main.phtml', $params);
 })->setName('main');
 
 $app->get('/urls', function ($request, $response) use ($pdo) {
-    $sql = "select * from urls";
+    $sql = "select * from urls order by created_at desc";
     $sites = $pdo->query($sql);
     $params = ['sites' => $sites];
     return $this->get('renderer')->render($response, 'urls.phtml', $params);
 })->setName('urls');
 
 $app->post('/urls', function ($request, $response) use ($pdo) {
-    $siteUrl = $request->getParam('url');
-    $sql = "select id from urls where name='$siteUrl'";
+    $v = new Valitron\Validator($_POST);
+
+    $v->rule('required', 'url.name')->message('URL не должен быть пустым');
+    $v->rule('max', '255')->message('URL не должен превышать 255 символов');
+    $v->rule('url', 'url.name')->message('Некорректный URL');
+
+    if (!($v->validate())) {
+        $message = $v->errors()['url.name'][0];
+        $this->get('flash')->addMessage('error', $message);
+
+        return $response->withRedirect('/', 302);
+//        return $response->withStatus(302)->withHeader('Location', "/");
+    }
+
+
+    $siteUrl = $request->getParam('url')['name'];
+    $parseUrl = parse_url($siteUrl, 0) . '://' . parse_url($siteUrl, 1);
+    $sql = "select id from urls where name='$parseUrl'";
     $isExist = !(($pdo->query($sql) === null));
     if ($isExist) {
         $id = $pdo->query($sql)[0]['id'];
         $this->get('flash')->addMessage('success', 'Страница уже существует');
         return $response->withStatus(302)->withHeader('Location', "/urls/$id");
     }
-    $idNew = $pdo->insert($siteUrl);
+    $idNew = $pdo->insert($parseUrl);
     $this->get('flash')->addMessage('success', 'Страница успешно добавлена');
     return $response->withStatus(302)->withHeader('Location', "/urls/$idNew");
 })->setName('urlpost');
