@@ -19,7 +19,7 @@ class Database
         if ($databaseUrl === false) {
             throw new \Exception("Error reading database configuration file");
         }
-
+        print_r($databaseUrl);
         $conStr = sprintf(
             "pgsql:host=%s;port=%d;dbname=%s;user=%s;password=%s",
             $databaseUrl['host'],
