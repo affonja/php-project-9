@@ -15,7 +15,7 @@ class Database
 
     public function connect(): \PDO
     {
-        $databaseUrl = parse_url($_ENV['DATABASE_URL']['path']);
+        $databaseUrl = parse_url($_ENV['DATABASE_URL']);
         if ($databaseUrl === false) {
             throw new \Exception("Error reading database configuration file");
         }
