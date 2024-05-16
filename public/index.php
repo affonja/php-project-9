@@ -12,7 +12,6 @@ session_start();
 $pdo = new Database();
 $urls = $pdo->createTable();
 
-
 $app = AppFactory::create();
 $container = new Container();
 $container->set('renderer', function () {
