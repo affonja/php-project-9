@@ -20,6 +20,7 @@ class Database
             throw new \Exception("Error reading database configuration file");
         }
         print_r($databaseUrl);
+        /*
         $conStr = sprintf(
             "pgsql:host=%s;port=%d;dbname=%s;user=%s;password=%s",
             $databaseUrl['host'],
@@ -27,6 +28,14 @@ class Database
             ltrim($databaseUrl['path'], '/'),
             $databaseUrl['user'],
             $databaseUrl['pass']
+        );*/
+        $conStr = sprintf(
+            "pgsql:host=%s;port=%d;dbname=%s;user=%s;password=%s",
+            'dpg-cp2i1nfsc6pc73a6998g-a',
+            5432,
+            'basepr3',
+            'aff',
+            'Irzhnwjt3BQcB5IG0s5wJXeZQqV6IqWC'
         );
 
         $pdo = new \PDO($conStr);
