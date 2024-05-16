@@ -24,7 +24,7 @@ class Database
 
         $conStr_old = sprintf(
             "pgsql:host=%s;port=%d;dbname=%s;user=%s;password=%s",
-            $databaseUrl['host'] || 5432,
+            $databaseUrl['host'],
             $databaseUrl['port'] || 5432,
             ltrim($databaseUrl['path'], '/'),
             $databaseUrl['user'],
@@ -41,7 +41,7 @@ class Database
             'Irzhnwjt3BQcB5IG0s5wJXeZQqV6IqWC'
         );
         print_r('____NEW - ' . $conStr . '<br>');
-
+        die();
         $pdo = new \PDO($conStr_old);
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 
