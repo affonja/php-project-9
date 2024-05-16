@@ -19,30 +19,16 @@ class Database
         if ($databaseUrl === false) {
             throw new \Exception("Error reading database configuration file");
         }
-        print_r('____DBURRL - ');
-        print_r($databaseUrl);
-
-        $conStr_old = sprintf(
+        $conStr = sprintf(
             "pgsql:host=%s;port=%d;dbname=%s;user=%s;password=%s",
             $databaseUrl['host'],
-            $databaseUrl['port'] || 5432,
+            5432,
             ltrim($databaseUrl['path'], '/'),
             $databaseUrl['user'],
             $databaseUrl['pass']
         );
-        print_r('____OLD - ' . $conStr_old . '<br>');
 
-        $conStr = sprintf(
-            "pgsql:host=%s;port=%d;dbname=%s;user=%s;password=%s",
-            'dpg-cp2i1nfsc6pc73a6998g-a',
-            5432,
-            'basepr3',
-            'aff',
-            'Irzhnwjt3BQcB5IG0s5wJXeZQqV6IqWC'
-        );
-        print_r('____NEW - ' . $conStr . '<br>');
-        die();
-        $pdo = new \PDO($conStr_old);
+        $pdo = new \PDO($conStr);
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 
         return $pdo;
