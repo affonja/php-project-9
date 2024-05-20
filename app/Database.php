@@ -15,7 +15,7 @@ class Database
 
     public function connect(): \PDO
     {
-        $databaseUrl = parse_url($_ENV['DATABASE_URL']);
+        $databaseUrl = parse_url(getenv('DATABASE_URL'));
         if ($databaseUrl === false) {
             throw new \Exception("Error reading database configuration file");
         }
@@ -34,42 +34,24 @@ class Database
         return $pdo;
     }
 
-    public function insert($siteUrl)
+    public function createTables(): Database
     {
-        $date = Carbon::now()->toDateTimeString();
-        $sql = "insert into urls(name, created_at) VALUES ('$siteUrl', '$date')";
+        $sql = file_get_contents('database.sql');
         $this->pdo->exec($sql);
+        return $this;
+    }
+
+    public function query($sql)
+    {
+        $this->pdo->query($sql);
         return $this->pdo->lastInsertId();
     }
 
-    public function query(string $sql): array|null
+    public function getAll(string $sql): array|null
     {
         if ($this->pdo->query($sql)->rowCount() > 0) {
             return $this->pdo->query($sql)->fetchAll(\PDO::FETCH_ASSOC);
         }
         return null;
-    }
-
-    public function createTable()
-    {
-        $sql = 'CREATE TABLE IF NOT EXISTS urls (
-                id bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-                name varchar(255) UNIQUE NOT NULL,
-                created_at timestamp
-                                );';
-
-        $this->pdo->exec($sql);
-
-        return $this;
-    }
-
-    public function dropTable(string $tableName): void
-    {
-        $sql = "DROP TABLE IF EXISTS $tableName";
-        $this->pdo->exec($sql);
-    }
-
-    public function clear()
-    {
     }
 }

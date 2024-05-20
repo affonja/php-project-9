@@ -1,19 +1,21 @@
 <?php
 
 /**
- * @var string $id
+ * @var string $url_id
  * @var string $siteUrl
  * @var string $created
  * @var array $flash
  *
- * @var string $code
+ * @var array $checks
+ *
+ * @var string $check_id
+ * @var string $status_code
  * @var string $h1
  * @var string $title
- * @var string $descript
- * @var string $data
+ * @var string $description
+ * @var string $date
  */
 
-$code = $h1 = $title = $descript = $data = '%%$%%';
 ?>
 <?= $this->fetch('header.phtml') ?>
 <?php
@@ -33,7 +35,7 @@ endif; ?>
             <table class="table table-bordered table-hover text-nowrap" data-test="url">
                 <tr>
                     <td>ID</td>
-                    <td><?= $id; ?></td>
+                    <td><?= $url_id; ?></td>
                 </tr>
                 <tr>
                     <td>Имя</td>
@@ -48,7 +50,9 @@ endif; ?>
 
         <div class="row mt-3">
             <h3 class="p-0">Проверки</h3>
-            <button type="submit" class="btn btn-primary col-2 mt-2">Запустить проверку</button>
+            <form method="post" action="/urls/<?= $url_id; ?>/checks">
+                <button type="submit" class="btn btn-primary col-2 mt-2">Запустить проверку</button>
+            </form>
             <table class="table table-bordered table-hover mt-3" data-test="checks">
                 <thead>
                 <tr>
@@ -61,6 +65,22 @@ endif; ?>
                 </tr>
                 </thead>
                 <tbody>
+                <?php
+                if (!empty($checks)): ?>
+                    <?php
+                    foreach ($checks as $check): ?>
+                        <tr>
+                            <td><?= $check['id']; ?></td>
+                            <td><?= $check['status_code']; ?></td>
+                            <td><?= $check['h1']; ?></td>
+                            <td><?= $check['title']; ?></td>
+                            <td><?= $check['description']; ?></td>
+                            <td><?= $check['created_at']; ?></td>
+                        </tr>
+                    <?php
+                    endforeach; ?>
+                <?php
+                endif; ?>
                 </tbody>
             </table>
         </div>

@@ -2,6 +2,7 @@
 
 /**
  * @var array $sites
+ * @var array $checks
  */
 
 ?>
@@ -28,8 +29,8 @@
                         <tr>
                             <td><?= $site['id']; ?></td>
                             <td><a href="<?= $site['name']; ?>" target="_blank"><?= $site['name']; ?></a></td>
-                            <td><?= $site['check'] ?? ''; ?></td>
-                            <td><?= $site['code'] ?? ''; ?></td>
+                            <td><?= $site['checks'] ?? ''; ?></td>
+                            <td><?= $site['status_code'] ?? ''; ?></td>
                         </tr>
                     <?php
                     endforeach;
