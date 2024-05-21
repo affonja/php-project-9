@@ -28,6 +28,7 @@
     "ext-pdo": "*",
     "nesbot/carbon": "^3.0@dev",
     "slim/flash": "dev-master",
-    "vlucas/valitron": "dev-master"
+    "vlucas/valitron": "dev-master",
+    "guzzlehttp/guzzle": "^7.0"
   }
 }

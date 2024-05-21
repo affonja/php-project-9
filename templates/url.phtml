@@ -20,9 +20,18 @@
 <?= $this->fetch('header.phtml') ?>
 <?php
 if (!empty($flash)): ?>
-    <div class="alert alert-success" role="alert">
-        <?= $flash['success'][0]; ?>
-    </div>
+    <?php
+    if (isset($flash['success'])): ?>
+        <div class="alert alert-success" role="alert">
+            <?= $flash['success'][0]; ?>
+        </div>
+    <?php
+    elseif (isset($flash['error'])):?>
+        <div class="alert alert-danger" role="alert">
+            <?= $flash['error'][0]; ?>
+        </div>
+    <?php
+    endif; ?>
 <?php
 endif; ?>
 

@@ -28,8 +28,8 @@
                     foreach ($sites as $site): ?>
                         <tr>
                             <td><?= $site['id']; ?></td>
-                            <td><a href="<?= $site['name']; ?>" target="_blank"><?= $site['name']; ?></a></td>
-                            <td><?= $site['checks'] ?? ''; ?></td>
+                            <td><a href="/urls/<?= $site['id']; ?>"><?= $site['name']; ?></a></td>
+                            <td><?= $site['last_check'] ?? ''; ?></td>
                             <td><?= $site['status_code'] ?? ''; ?></td>
                         </tr>
                     <?php

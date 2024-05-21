@@ -6,6 +6,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Factory\AppFactory;
 use DI\Container;
 use App\Database;
+use GuzzleHttp\Client;
 
 require __DIR__ . '/../vendor/autoload.php';
 session_start();
@@ -45,14 +46,14 @@ $app->get('/', function ($request, $response) {
 })->setName('main');
 
 $app->get('/urls', function ($request, $response) use ($pdo) {
-    $sql = "SELECT u.id, u.name, sq.checks, uc.status_code FROM urls u
-    inner join
-        (SELECT url_id, MAX(created_at) AS checks
-        FROM url_checks
-        GROUP BY url_id) as sq on u.id = sq.url_id
-    inner join url_checks uc on u.id = uc.url_id
-    group by u.id , u.name,sq.checks, uc.status_code
-    ORDER BY u.id DESC;";
+    $sql = "SELECT u.id as id, u.name as name, uc.status_code,v.last_check as last_check
+            from url_checks uc
+                inner join (select url_id, max(created_at) as last_check
+                     from url_checks group by url_id) as v
+                    on v.url_id = uc.url_id and v.last_check = uc.created_at
+                right join urls u on u.id = v.url_id
+            order by u.id desc;";
+
     $sites = $pdo->getAll($sql);
     $params = ['sites' => $sites];
     return $this->get('renderer')->render($response, 'urls.phtml', $params);
@@ -101,9 +102,20 @@ $app->get('/urls/{url_id}', function ($request, $response, $args) use ($pdo) {
 
 $app->post('/urls/{url_id}/checks', function ($request, $response, $args) use ($pdo) {
     $url_id = $args['url_id'];
+    $url_name = $pdo->getAll("select name from urls where id=$url_id")[0]['name'];
+
+    $client = new GuzzleHttp\Client();
+    try {
+        $response = $client->get($url_name);
+    } catch (GuzzleHttp\Exception\GuzzleException $e) {
+        $this->get('flash')->addMessage('error', 'Ошибка при обращении к сайту');
+        return $response->withStatus(302)->withHeader('Location', "/urls/$url_id");
+    }
+    $statusCode = $response->getStatusCode();
     $date = Carbon::now()->toDateTimeString();
+
     $sql = "insert into url_checks(url_id, status_code, h1, title, description, created_at)
-values ('$url_id', 0, 'h1', 'title', 'description', '$date');";
+            values ('$url_id', $statusCode, 'h1', 'title', 'description', '$date');";
     $idNew = $pdo->query($sql);
 
     $this->get('flash')->addMessage('success', 'Страница успешно проверена');
