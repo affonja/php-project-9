@@ -36,7 +36,7 @@ function validateUrl(): array
     $v->rule('required', 'url.name')->message('URL не должен быть пустым');
     $v->rule('max', '255')->message('URL не должен превышать 255 символов');
     $v->rule('url', 'url.name')->message('Некорректный URL');
-    return ['result' => $v->validate(), 'error' => $v->errors()['url.name'][0]];
+    return ['result' => $v->validate(), 'error' => $v->errors()['url.name'][0] ?? []];
 }
 
 $app->get('/', function ($request, $response) {
