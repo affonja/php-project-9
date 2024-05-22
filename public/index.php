@@ -7,6 +7,8 @@ use Slim\Factory\AppFactory;
 use DI\Container;
 use App\Database;
 use GuzzleHttp\Client;
+use DiDom\Document;
+use DiDom\Query;
 
 require __DIR__ . '/../vendor/autoload.php';
 session_start();
@@ -114,8 +116,14 @@ $app->post('/urls/{url_id}/checks', function ($request, $response, $args) use ($
     $statusCode = $response->getStatusCode();
     $date = Carbon::now()->toDateTimeString();
 
+    $document = new Document($url_name, true);
+    $h1 = ($document->has('h1')) ? $document->find('h1')[0]->text() : '';
+    $title = ($document->has('title')) ? $document->find('title')[0]->text() : '';
+    $content = ($document->has('meta[name="description"]')) ?
+        $document->find('meta[name="description"]')[0]->attr('content') : '';
+
     $sql = "insert into url_checks(url_id, status_code, h1, title, description, created_at)
-            values ('$url_id', $statusCode, 'h1', 'title', 'description', '$date');";
+            values ($url_id, $statusCode, '$h1', '$title', '$content', '$date');";
     $idNew = $pdo->query($sql);
 
     $this->get('flash')->addMessage('success', 'Страница успешно проверена');
