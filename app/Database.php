@@ -2,56 +2,73 @@
 
 namespace App;
 
-use Carbon\Carbon;
+use Exception;
+use PDO;
+use PDOException;
+use PDOStatement;
 
 class Database
 {
-    private $pdo;
+    private PDO $pdo;
 
     public function __construct()
     {
         $this->pdo = $this->connect();
+        $this->createTables();
     }
 
-    public function connect(): \PDO
+    public function connect(): PDO
     {
-        $databaseUrl = parse_url(getenv('DATABASE_URL'));
-        if ($databaseUrl === false) {
-            throw new \Exception("Error reading database configuration file");
+        $databaseUrl = getenv('DATABASE_URL');
+        if (!$databaseUrl) {
+            throw new Exception("Error reading DATABASE_URL");
         }
-        $conStr = sprintf(
+        $parseUrl = parse_url(getenv('DATABASE_URL'));
+        $connectionStr = sprintf(
             "pgsql:host=%s;port=%d;dbname=%s;user=%s;password=%s",
-            $databaseUrl['host'],
+            $parseUrl['host'],
             5432,
-            ltrim($databaseUrl['path'], '/'),
-            $databaseUrl['user'],
-            $databaseUrl['pass']
+            ltrim($parseUrl['path'], '/'),
+            $parseUrl['user'],
+            $parseUrl['pass']
         );
 
-        $pdo = new \PDO($conStr);
-        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        try {
+            $pdo = new PDO($connectionStr);
+        } catch (PDOException $e) {
+            throw new PDOException($e->getMessage(), (int)$e->getCode());
+        }
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         return $pdo;
     }
 
-    public function createTables(): Database
+    public function createTables(): void
     {
         $sql = file_get_contents('database.sql');
         $this->pdo->exec($sql);
-        return $this;
     }
 
-    public function query($sql)
+    public function executeQuery(string $sql, array $data): PDOStatement
     {
-        $this->pdo->query($sql);
+        try {
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute($data);
+            return $stmt;
+        } catch (PDOException $e) {
+            throw new Exception('Error execute query: ' . $e->getMessage());
+        }
+    }
+
+    public function insert(string $sql, array $data): string
+    {
+        $this->executeQuery($sql, $data);
         return $this->pdo->lastInsertId();
     }
 
-    public function getAll(string $sql): array|null
+    public function getAll(string $sql, array $data): array
     {
-        if ($this->pdo->query($sql)->rowCount() > 0) {
-            return $this->pdo->query($sql)->fetchAll(\PDO::FETCH_ASSOC);
-        }
-        return null;
+        $result = $this->executeQuery($sql, $data);
+        return $result->fetchAll(PDO::FETCH_ASSOC);
     }
 }
