@@ -9,6 +9,7 @@
     }
   ],
   "minimum-stability": "dev",
+  "prefer-stable": true,
   "autoload": {
     "psr-4": {
       "App\\": "app/",
@@ -21,8 +22,6 @@
   },
   "require": {
     "slim/slim": "^4.0",
-    "slim/psr7": "dev-master",
-    "slim/http": "dev-master",
     "slim/php-view": "^3.0",
     "php-di/php-di": "dev-master",
     "ext-pdo": "*",
@@ -30,6 +29,8 @@
     "slim/flash": "dev-master",
     "vlucas/valitron": "dev-master",
     "guzzlehttp/guzzle": "^7.0",
-    "imangazaliev/didom": "dev-master"
+    "imangazaliev/didom": "dev-master",
+    "slim/psr7": "dev-master@dev",
+    "slim/http": "dev-master@dev"
   }
 }
