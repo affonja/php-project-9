@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "efc00372549fec1252f75f39631286b1",
+    "content-hash": "fe36ae8d77b4fcdbddc9f4e2459658cc",
     "packages": [
         {
             "name": "carbonphp/carbon-doctrine-types",
@@ -2513,13 +2513,13 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "php-di/php-di": 20,
         "nesbot/carbon": 20,
+        "slim/psr7": 20,
+        "slim/http": 20,
+        "php-di/php-di": 20,
         "slim/flash": 20,
         "vlucas/valitron": 20,
         "imangazaliev/didom": 20,
-        "slim/psr7": 20,
-        "slim/http": 20,
         "squizlabs/php_codesniffer": 20,
         "phpstan/phpstan-strict-rules": 20
     },
