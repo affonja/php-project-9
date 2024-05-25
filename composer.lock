@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "893d32709be1fc6775d86df40b980754",
+    "content-hash": "efc00372549fec1252f75f39631286b1",
     "packages": [
         {
             "name": "carbonphp/carbon-doctrine-types",
@@ -571,7 +571,7 @@
         },
         {
             "name": "nesbot/carbon",
-            "version": "3.4.0",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/briannesbitt/Carbon.git",
@@ -607,6 +607,7 @@
                 "phpunit/phpunit": "^10.5.15",
                 "squizlabs/php_codesniffer": "^3.9.0"
             },
+            "default-branch": true,
             "bin": [
                 "bin/carbon"
             ],
@@ -2510,7 +2511,7 @@
         }
     ],
     "aliases": [],
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "stability-flags": {
         "php-di/php-di": 20,
         "nesbot/carbon": 20,
@@ -2522,7 +2523,7 @@
         "squizlabs/php_codesniffer": 20,
         "phpstan/phpstan-strict-rules": 20
     },
-    "prefer-stable": true,
+    "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
         "ext-pdo": "*"
