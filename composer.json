@@ -24,11 +24,11 @@
     "ext-pdo": "*",
     "nesbot/carbon": "^3.0@dev",
     "guzzlehttp/guzzle": "^7.0",
-    "slim/psr7": "dev-master",
-    "slim/http": "dev-master",
-    "php-di/php-di": "dev-master",
-    "slim/flash": "dev-master",
-    "vlucas/valitron": "dev-master",
-    "imangazaliev/didom": "dev-master"
+    "slim/psr7": "dev-master@dev",
+    "slim/http": "dev-master@dev",
+    "php-di/php-di": "dev-master@dev",
+    "slim/flash": "dev-master@dev",
+    "vlucas/valitron": "dev-master@dev",
+    "imangazaliev/didom": "dev-master@dev"
   }
 }
