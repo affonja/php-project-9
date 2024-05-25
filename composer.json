@@ -21,14 +21,14 @@
   "require": {
     "slim/slim": "^4.0",
     "slim/php-view": "^3.0",
-    "php-di/php-di": "dev-master",
     "ext-pdo": "*",
     "nesbot/carbon": "^3.0@dev",
-    "slim/flash": "dev-master",
     "vlucas/valitron": "dev-master",
     "guzzlehttp/guzzle": "^7.0",
     "imangazaliev/didom": "dev-master",
     "slim/psr7": "dev-master",
-    "slim/http": "dev-master"
+    "slim/http": "dev-master",
+    "php-di/php-di": "dev-master",
+    "slim/flash": "dev-master"
   }
 }
