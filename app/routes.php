@@ -37,8 +37,7 @@ $app->post('/urls', function ($request, $response) use ($db) {
     $validationUrl = validateUrl();
     if (!$validationUrl['result']) {
         $message = $validationUrl['error'];
-        $this->get('flash')->addMessage('error', $message);
-        return $response->withRedirect('/', 302);
+        return $this->get('renderer')->render($response->withStatus(422), 'main.phtml', ['error' => $message]);
     }
 
     $url = $request->getParam('url')['name'];

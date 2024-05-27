@@ -1,3 +1,7 @@
+<?php
+/** @var array $flash */
+/** @var string $error */
+?>
 <?= $this->fetch('header.phtml') ?>
 <?php
 if (!empty($flash)): ?>
@@ -18,14 +22,17 @@ endif; ?>
                 <form class="row g-3" method="post" action="/urls" name="forma">
                     <div class="mb-3 col-8">
                         <label for="adress" class="visually-hidden">Адрес сайта</label>
-                        <input type="text" class="form-control" id="adress"
-                               aria-describedby="emailHelp" placeholder="url" name="url[name]" maxlength="255">
+                        <input type="text" class="form-control <?= isset($error) ? 'is-invalid' : ''; ?>"
+                               placeholder="url"
+                               name="url[name]"
+                               id="adress">
+                        <div class="invalid-feedback"><?= $error ?? ''; ?></div>
                     </div>
                     <div class="col-3">
-                        <!--                        <button type="submit" class="btn btn-primary">Проверить</button>-->
-                        <input type="submit" class="btn btn-primary" value="Проверить"></input>
+                        <input type="submit" class="btn btn-primary" value="Проверить">
                     </div>
                 </form>
+
 
             </div>
         </div>
