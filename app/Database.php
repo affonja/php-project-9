@@ -23,7 +23,7 @@ class Database
         if (!$databaseUrl) {
             throw new Exception("Error reading DATABASE_URL");
         }
-        $parseUrl = parse_url(getenv('DATABASE_URL'));
+        $parseUrl = parse_url($databaseUrl);
         $connectionStr = sprintf(
             "pgsql:host=%s;port=%d;dbname=%s;user=%s;password=%s",
             $parseUrl['host'],
@@ -46,7 +46,9 @@ class Database
     public function createTables(): void
     {
         $sql = file_get_contents(__DIR__ . "/../database.sql");
-        $this->pdo->exec($sql);
+        if ($sql) {
+            $this->pdo->exec($sql);
+        }
     }
 
     public function executeQuery(string $sql, array $data): PDOStatement

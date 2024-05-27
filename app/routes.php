@@ -11,6 +11,7 @@ use DiDom\Document;
 use Slim\App;
 use GuzzleHttp\Client as GuzzClient;
 use GuzzleHttp\Exception\GuzzleException as GuzzExeption;
+use DiDom\Element;
 
 $app->get('/', function ($request, $response) {
     $messages = $this->get('flash')->getMessages();

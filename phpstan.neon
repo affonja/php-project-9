@@ -1,0 +1,11 @@
+parameters:
+	level: 9
+	paths:
+	    - app
+	    - public
+	ignoreErrors:
+	    - '#^Function .* return type has no value type specified in iterable type array\.$#'
+	    - '#^Function .* has parameter .* with no value type specified in iterable type array\.$#'
+
+includes:
+    - vendor/phpstan/phpstan-strict-rules/rules.neon
