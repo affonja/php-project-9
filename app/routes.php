@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @var App $app
  * @var Database $db
