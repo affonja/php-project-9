@@ -8,3 +8,6 @@ install:
 
 lint:
 	composer exec --verbose phpcs -- --standard=PSR12 public app
+
+inspect:
+	composer exec --verbose phpstan analyse -- -c phpstan.neon

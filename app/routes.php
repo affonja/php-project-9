@@ -11,7 +11,6 @@ use DiDom\Document;
 use Slim\App;
 use GuzzleHttp\Client as GuzzClient;
 use GuzzleHttp\Exception\GuzzleException as GuzzExeption;
-use DiDom\Element;
 
 $app->get('/', function ($request, $response) {
     $messages = $this->get('flash')->getMessages();
@@ -89,12 +88,20 @@ $app->post('/urls/{url_id}/checks', function ($request, $response, $args) use ($
     }
     $statusCode = $response->getStatusCode();
     $date = Carbon::now()->toDateTimeString();
-
     $document = new Document($url_name, true);
-    $h1 = ($document->has('h1')) ? $document->find('h1')[0]->text() : '';
-    $title = ($document->has('title')) ? $document->find('title')[0]->text() : '';
+
+    /** @var DiDom\Element[] $h1Elem */
+    $h1Elem = $document->find('h1');
+    $h1 = ($document->has('h1')) ? $h1Elem[0]->text() : '';
+
+    /** @var DiDom\Element[] $titleElem */
+    $titleElem = $document->find('title');
+    $title = ($document->has('title')) ? $titleElem[0]->text() : '';
+
+    /** @var DiDom\Element[] $metaElem */
+    $metaElem = $document->find('meta[name="description"]');
     $content = ($document->has('meta[name="description"]')) ?
-        $document->find('meta[name="description"]')[0]->attr('content') : '';
+        $metaElem[0]->attr('content') : '';
 
     $sql = "INSERT INTO url_checks(url_id, status_code, h1, title, description, created_at)
             VALUES (:url_id, :statusCode, :h1, :title, :content, :date);";

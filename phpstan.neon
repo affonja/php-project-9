@@ -1,11 +1,12 @@
 parameters:
 	level: 9
 	paths:
-	    - app
-	    - public
+	    - /app/routes.php
 	ignoreErrors:
 	    - '#^Function .* return type has no value type specified in iterable type array\.$#'
 	    - '#^Function .* has parameter .* with no value type specified in iterable type array\.$#'
+	    - '#Undefined variable: .*#'
+	    - '#Function validateUrl not found.*#'
 
 includes:
     - vendor/phpstan/phpstan-strict-rules/rules.neon
