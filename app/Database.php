@@ -45,7 +45,6 @@ class Database
 
     public function createTables(): void
     {
-//        $sql = file_get_contents('database.sql');
         $sql = file_get_contents(__DIR__ . "/../database.sql");
         $this->pdo->exec($sql);
     }
