@@ -20,3 +20,6 @@ jobs:
 
       - name: Install
         run: make install
+
+      - name: Run linter
+        run: make lint

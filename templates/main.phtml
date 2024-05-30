@@ -1,8 +1,9 @@
 <?php
 /** @var array $flash */
 /** @var string $error */
+/** @var string $url */
 ?>
-<?= $this->fetch('header.phtml') ?>
+
 <?php
 if (!empty($flash)): ?>
     <div class="alert alert-danger" role="alert">
@@ -15,34 +16,26 @@ endif; ?>
     <div class="container">
         <div class="row justify-content-md-center mt-3">
             <div class="col-md-8 bg-secondary-subtle px-5 py-5 border border-dark-subtle rounded">
-                <h1 class="title fw-normal">Анализатор страниц</h1>
-                <p class="slogan fs-4 fw-light">Бесплатно проверяйте сайты на SEO пригодность</p>
-
-
-                <form class="row g-3" method="post" action="/urls" name="forma">
+                <h1 class="title display-3">Анализатор страниц</h1>
+                <p class="slogan mt-2 fs-5 fw-light">Бесплатно проверяйте сайты на SEO пригодность</p>
+                <form class="row g-3" method="post" action="<?= $this->getAttribute('routes')->urlFor('urls.add'); ?>"
+                      name="forma">
                     <div class="mb-3 col-8">
                         <label for="adress" class="visually-hidden">Адрес сайта</label>
-                        <input type="text" class="form-control <?= isset($error) ? 'is-invalid' : ''; ?>"
-                               placeholder="url"
+                        <input type="text" class="form-control fs-5 pb-2 <?= isset($error) ? 'is-invalid' : ''; ?>"
+                               placeholder="https://example.com"
                                name="url[name]"
-                               id="adress">
+                               id="adress" value="<?= $url ?? ''; ?>">
                         <div class="invalid-feedback"><?= $error ?? ''; ?></div>
                     </div>
-                    <div class="col-3">
-                        <input type="submit" class="btn btn-primary" value="Проверить">
+                    <div class="col-2">
+                        <input type="submit" class="btn btn-primary btn-lg ms-3 px-5 text-uppercase mx-3"
+                               value="Проверить">
                     </div>
                 </form>
-
-
             </div>
-        </div>
 
+
+        </div>
     </div>
 </main>
-
-<script>
-
-</script>
-
-</body>
-</html>
