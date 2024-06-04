@@ -3,6 +3,7 @@ parameters:
 	paths:
 	    - /app
 	    - /public
+	    - /templates
 	ignoreErrors:
 	    - '#^Function .* return type has no value type specified in iterable type array\.$#'
 	    - '#^Function .* has parameter .* with no value type specified in iterable type array\.$#'

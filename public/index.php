@@ -14,7 +14,7 @@ $container = new Container();
 $container->set('renderer', function () {
     return new PhpRenderer(__DIR__ . '/../templates');
 });
-$container->get('renderer')->setLayout("layout.php");
+$container->get('renderer')->setLayout("layout.phtml");
 $container->set('flash', function () {
     return new Messages();
 });

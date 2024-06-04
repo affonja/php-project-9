@@ -59,7 +59,7 @@ endif; ?>
 
         <div class="row mt-3">
             <h3 class="p-0">Проверки</h3>
-            <form method="post"
+            <form method="post" class="p-0"
                   action="<?= $this->getAttribute('routes')->urlFor('url.check', ['url_id' => $url_id]); ?>">
                 <button type="submit" class="btn btn-primary col-2 mt-2">Запустить проверку</button>
             </form>
