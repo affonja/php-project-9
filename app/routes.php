@@ -79,7 +79,7 @@ $app->post('/urls', function ($request, $response) use ($app) {
     $target = $app->getRouteCollector()->getRouteParser()->urlFor('url.show', ['url_id' => $id]);
     $this->get('flash')->addMessage('success', 'Страница успешно добавлена');
 
-    return $response->withStatus(200)->withHeader('Location', $target);
+    return $response->withStatus(302)->withHeader('Location', $target);
 })->setName('urls.add');
 
 $app->get('/urls/{url_id}', function ($request, $response, $args) {
