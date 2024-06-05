@@ -18,7 +18,7 @@ endif; ?>
             <div class="col-md-8 bg-secondary-subtle px-5 py-5 border border-dark-subtle rounded">
                 <h1 class="title display-3">Анализатор страниц</h1>
                 <p class="slogan mt-2 fs-5 fw-light">Бесплатно проверяйте сайты на SEO пригодность</p>
-                <form class="row g-3" method="post" action="<?= $this->getAttribute('routes')->urlFor('urls.add'); ?>"
+                <form class="row g-3" method="post" action="<?= $this->getAttribute('routes')->urlFor('urls.store'); ?>"
                       name="forma">
                     <div class="mb-3 col-8">
                         <label for="adress" class="visually-hidden">Адрес сайта</label>

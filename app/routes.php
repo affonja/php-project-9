@@ -21,12 +21,12 @@ $app->get('/', function ($request, $response) {
     $params = [
         'flash' => $messages
     ];
-    return $this->get('renderer')->render($response, 'main.phtml', $params);
+    return $this->get('renderer')->render($response, '/components/main.phtml', $params);
 })->setName('main');
 
 $app->get('/urls', function ($request, $response) {
     $sqlChecks = <<<SQL
-SELECT url_id, status_code, MAX(created_at) AS last_check
+SELECT url_id AS id, status_code, MAX(created_at) AS last_check
 FROM url_checks
 GROUP BY url_id, status_code
 ORDER BY url_id DESC;
@@ -34,22 +34,16 @@ SQL;
     $checks = $this->get('db')->getAll($sqlChecks, []);
     $sqlUrls = "SELECT id, name FROM urls ORDER BY id DESC;";
     $urls = $this->get('db')->getAll($sqlUrls, []);
-    $mergedUrls = [];
-    foreach ($urls as $url) {
-        foreach ($checks as $check) {
-            if ($url['id'] == $check['url_id']) {
-                $url['status_code'] = $check['status_code'];
-                $url['last_check'] = $check['last_check'];
-                break;
-            }
-        }
-        $mergedUrls[] = $url;
-    }
 
-    $params = ['sites' => $mergedUrls];
+    $urls_keyed = collect(Arr::keyBy($urls, 'id'));
+    $checks_keyed = collect(Arr::keyBy($checks, 'id'));
+    $merged = $urls_keyed->map(function ($item, $key) use ($checks_keyed) {
+        return $checks_keyed->has($key) ? array_merge($item, $checks_keyed->get($key)) : $item;
+    });
+    $params = ['sites' => $merged->all()];
 
-    return $this->get('renderer')->render($response, 'urls.phtml', $params);
-})->setName('urls.store');
+    return $this->get('renderer')->render($response, '/components/urls/index.phtml', $params);
+})->setName('urls.index');
 
 $app->post('/urls', function ($request, $response) use ($app) {
     $url = $request->getParam('url')['name'];
@@ -58,7 +52,7 @@ $app->post('/urls', function ($request, $response) use ($app) {
         $message = $validationUrl['error'];
         return $this->get('renderer')->render(
             $response->withStatus(422),
-            'main.phtml',
+            '/components/main.phtml',
             ['error' => $message, 'url' => htmlspecialchars($url)]
         );
     }
@@ -80,7 +74,7 @@ $app->post('/urls', function ($request, $response) use ($app) {
     $this->get('flash')->addMessage('success', 'Страница успешно добавлена');
 
     return $response->withStatus(302)->withHeader('Location', $target);
-})->setName('urls.add');
+})->setName('urls.store');
 
 $app->get('/urls/{url_id}', function ($request, $response, $args) {
     $messages = $this->get('flash')->getMessages();
@@ -99,7 +93,7 @@ $app->get('/urls/{url_id}', function ($request, $response, $args) {
         'flash' => $messages,
         'checks' => $checksData
     ];
-    return $this->get('renderer')->render($response, 'url.phtml', $params);
+    return $this->get('renderer')->render($response, '/components/url/index.phtml', $params);
 })->setName('url.show');
 
 $app->post('/urls/{url_id}/checks', function ($request, $response, $args) use ($app) {
@@ -135,15 +129,15 @@ $app->post('/urls/{url_id}/checks', function ($request, $response, $args) use ($
     $statusCode = $response->getStatusCode();
     try {
         $document = new Document($url_name[0]['name'], true);
-        $h1 = optional($document->find('h1')[0])->text();
-        $title = optional($document->find('title')[0])->text();
-        $content = optional($document->find('meta[name="description"]')[0])->attr('content');
+        $h1 = optional($document->first('h1'))->text();
+        $title = optional($document->first('title'))->text();
+        $content = optional($document->first('meta[name="description"]'))->attr('content');
         $this->get('db')->insert($sql, [
             'url_id' => $url_id,
             'statusCode' => $statusCode,
-            'h1' => (isset($h1)) ? getShortString($h1) : null,
-            'title' => (isset($title)) ? getShortString($title) : null,
-            'content' => (isset($content)) ? getShortString($content, 1000) : null,
+            'h1' => (isset($h1)) ? Support\Str::limit($h1, 255) : null,
+            'title' => (isset($title)) ? Support\Str::limit($title, 255) : null,
+            'content' => (isset($content)) ? Support\Str::limit($content, 1000) : null,
             'date' => $date
         ]);
         $this->get('flash')->addMessage('success', 'Страница успешно проверена');
@@ -160,12 +154,7 @@ $app->post('/urls/{url_id}/checks', function ($request, $response, $args) use ($
         $this->get('flash')->addMessage('error', 'Ошибка при обращении к сайту: ' . $e->getMessage());
         return $response->withStatus(302)->withHeader('Location', $target);
     }
-})->setName('url.check');
-
-function getShortString(string $str, int $length = 255): string
-{
-    return substr($str, 0, $length);
-}
+})->setName('urls.checks.store');
 
 function validateUrl(array $url): array
 {
