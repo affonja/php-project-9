@@ -1,0 +1,7 @@
+<?php if (!empty($flash)): ?>
+    <?php foreach ($flash as $type => $message): ?>
+        <div class="alert alert-<?= $type; ?>" role="alert">
+            <?= $message[0]; ?>
+        </div>
+    <?php endforeach; ?>
+<?php endif; ?>

@@ -21,7 +21,7 @@ $app->get('/', function ($request, $response) {
     $params = [
         'flash' => $messages
     ];
-    return $this->get('renderer')->render($response, '/components/main.phtml', $params);
+    return $this->get('renderer')->render($response, 'main.phtml', $params);
 })->setName('main');
 
 $app->get('/urls', function ($request, $response) {
@@ -52,7 +52,7 @@ $app->post('/urls', function ($request, $response) use ($app) {
         $message = $validationUrl['error'];
         return $this->get('renderer')->render(
             $response->withStatus(422),
-            '/components/main.phtml',
+            'main.phtml',
             ['error' => $message, 'url' => htmlspecialchars($url)]
         );
     }
@@ -63,14 +63,14 @@ $app->post('/urls', function ($request, $response) use ($app) {
     if ($isExist) {
         $id = $this->get('db')->getAll($sql, ['normalizedUrl' => $normalizedUrl])[0]['id'];
         $this->get('flash')->addMessage('success', 'Страница уже существует');
-        $target = $app->getRouteCollector()->getRouteParser()->urlFor('url.show', ['url_id' => $id]);
+        $target = $app->getRouteCollector()->getRouteParser()->urlFor('urls.show', ['url_id' => $id]);
 
         return $response->withStatus(302)->withHeader('Location', $target);
     }
     $date = Carbon::now()->toDateTimeString();
     $sql = "INSERT INTO urls(name, created_at) VALUES (:normalizedUrl, :date);";
     $id = $this->get('db')->insert($sql, ['normalizedUrl' => $normalizedUrl, 'date' => $date]);
-    $target = $app->getRouteCollector()->getRouteParser()->urlFor('url.show', ['url_id' => $id]);
+    $target = $app->getRouteCollector()->getRouteParser()->urlFor('urls.show', ['url_id' => $id]);
     $this->get('flash')->addMessage('success', 'Страница успешно добавлена');
 
     return $response->withStatus(302)->withHeader('Location', $target);
@@ -88,17 +88,17 @@ $app->get('/urls/{url_id}', function ($request, $response, $args) {
     $checksData = $this->get('db')->getAll($getChecksSql, ['id' => $args['url_id']]);
     $params = [
         'url_id' => $urlData[0]['id'],
-        'siteUrl' => $urlData[0]['name'],
+        'site_url' => $urlData[0]['name'],
         'created' => $urlData[0]['created_at'],
         'flash' => $messages,
         'checks' => $checksData
     ];
-    return $this->get('renderer')->render($response, '/components/url/index.phtml', $params);
-})->setName('url.show');
+    return $this->get('renderer')->render($response, '/components/urls/show.phtml', $params);
+})->setName('urls.show');
 
 $app->post('/urls/{url_id}/checks', function ($request, $response, $args) use ($app) {
     $url_id = $args['url_id'];
-    $target = $app->getRouteCollector()->getRouteParser()->urlFor('url.show', ['url_id' => $url_id]);
+    $target = $app->getRouteCollector()->getRouteParser()->urlFor('urls.show', ['url_id' => $url_id]);
     $url_name = $this->get('db')->getAll("SELECT name FROM urls WHERE id=:url_id", ['url_id' => $url_id]);
     if (!$url_name) {
         $this->get('flash')->addMessage('error', 'Ошибка запроса к бд');

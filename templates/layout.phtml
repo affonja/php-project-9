@@ -2,6 +2,7 @@
 /**
  * @var string $content
  * @var Slim\Views\PhpRenderer $this
+ * @var array $flash
  */
 ?>
 <!doctype html>
@@ -19,8 +20,9 @@
             crossorigin="anonymous"></script>
 </head>
 <body class="d-flex flex-column min-vh-100">
-<?= $this->fetch('/components/header.phtml') ?>
+<?= $this->fetch('header.phtml') ?>
+<?= $this->fetch('/components/flash.phtml', ['flash' => $flash ?? null]) ?>
 <?= $content ?>
-<?= $this->fetch('/components/footer.phtml') ?>
+<?= $this->fetch('footer.phtml') ?>
 </body>
 </html>

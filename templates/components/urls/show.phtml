@@ -2,45 +2,19 @@
 
 /**
  * @var string $url_id
- * @var string $siteUrl
+ * @var string $site_url
  * @var string $created
- * @var array $flash
- *
  * @var array $checks
- *
- * @var string $check_id
- * @var string $status_code
- * @var string $h1
- * @var string $title
- * @var string $description
- * @var string $date
  */
 
 ?>
-
-<?php
-if (!empty($flash)): ?>
-    <?php
-    if (isset($flash['success'])): ?>
-        <div class="alert alert-success" role="alert">
-            <?= $flash['success'][0]; ?>
-        </div>
-    <?php
-    elseif (isset($flash['error'])):?>
-        <div class="alert alert-danger" role="alert">
-            <?= $flash['error'][0]; ?>
-        </div>
-    <?php
-    endif; ?>
-<?php
-endif; ?>
 
 <main>
     <div class="container">
 
 
         <div class="row mt-5">
-            <h2 class="p-0">Сайт: <?= $siteUrl; ?></h2>
+            <h2 class="p-0">Сайт: <?= $site_url; ?></h2>
             <table class="table table-bordered table-hover text-nowrap" data-test="url">
                 <tr>
                     <td>ID</td>
@@ -48,7 +22,7 @@ endif; ?>
                 </tr>
                 <tr>
                     <td>Имя</td>
-                    <td><?= $siteUrl; ?></td>
+                    <td><?= $site_url; ?></td>
                 </tr>
                 <tr>
                     <td>Дата создания</td>
@@ -76,21 +50,17 @@ endif; ?>
                 </thead>
                 <tbody>
                 <?php
-                if (!empty($checks)): ?>
-                    <?php
-                    foreach ($checks as $check): ?>
-                        <tr>
-                            <td><?= $check['id']; ?></td>
-                            <td><?= $check['status_code']; ?></td>
-                            <td><?= $check['h1']; ?></td>
-                            <td><?= $check['title']; ?></td>
-                            <td><?= $check['description']; ?></td>
-                            <td><?= $check['created_at']; ?></td>
-                        </tr>
-                    <?php
-                    endforeach; ?>
+                foreach ($checks as $check): ?>
+                    <tr>
+                        <td><?= $check['id']; ?></td>
+                        <td><?= $check['status_code']; ?></td>
+                        <td><?= $check['h1']; ?></td>
+                        <td><?= $check['title']; ?></td>
+                        <td><?= $check['description']; ?></td>
+                        <td><?= $check['created_at']; ?></td>
+                    </tr>
                 <?php
-                endif; ?>
+                endforeach; ?>
                 </tbody>
             </table>
         </div>

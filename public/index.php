@@ -11,10 +11,9 @@ require __DIR__ . '/../vendor/autoload.php';
 session_start();
 
 $container = new Container();
-$container->set('renderer', function () {
-    return new PhpRenderer(__DIR__ . '/../templates');
-});
-$container->get('renderer')->setLayout("layout.phtml");
+$app = AppFactory::createFromContainer($container);
+$app->addErrorMiddleware(true, true, true);
+
 $container->set('flash', function () {
     return new Messages();
 });
@@ -26,14 +25,15 @@ $container->set('db', function () {
     }
 });
 $container->get('db');
+$container->set('renderer', function () use ($app) {
+    $renderer = new PhpRenderer(__DIR__ . '/../templates');
+    $renderer->setLayout("layout.phtml");
+    $routes = $app->getRouteCollector()->getRouteParser();
+    $renderer->addAttribute('routes', $routes);
 
-$app = AppFactory::createFromContainer($container);
-$app->addErrorMiddleware(true, true, true);
+    return $renderer;
+});
 
 require __DIR__ . '/../app/routes.php';
-
-$renderer = $container->get('renderer');
-$routes = $app->getRouteCollector()->getRouteParser();
-$renderer->addAttribute('routes', $routes);
 
 $app->run();
