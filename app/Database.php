@@ -27,7 +27,7 @@ class Database
         $connectionStr = sprintf(
             "pgsql:host=%s;port=%d;dbname=%s;user=%s;password=%s",
             $parseUrl['host'],
-            5432,
+            $parseUrl['port'],
             ltrim($parseUrl['path'], '/'),
             $parseUrl['user'],
             $parseUrl['pass']
@@ -72,5 +72,11 @@ class Database
     {
         $result = $this->executeQuery($sql, $data);
         return $result->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getFirst(string $sql, array $data)
+    {
+        $result = $this->executeQuery($sql, $data);
+        return $result->fetchAll(PDO::FETCH_ASSOC)[0] ?? null;
     }
 }

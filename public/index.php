@@ -1,5 +1,6 @@
 <?php
 
+use Slim\Exception\HttpNotFoundException;
 use Slim\Factory\AppFactory;
 use DI\Container;
 use App\Database;
@@ -12,7 +13,7 @@ session_start();
 
 $container = new Container();
 $app = AppFactory::createFromContainer($container);
-$app->addErrorMiddleware(true, true, true);
+$errorMiddleware = $app->addErrorMiddleware(true, true, true);
 
 $container->set('flash', function () {
     return new Messages();
@@ -24,12 +25,13 @@ $container->set('db', function () {
         throw new Exception('Ошибка подключения к базе данных: ' . $e->getMessage());
     }
 });
-$container->get('db');
-$container->set('renderer', function () use ($app) {
+$container->set('renderer', function () use ($app, $container) {
     $renderer = new PhpRenderer(__DIR__ . '/../templates');
     $renderer->setLayout("layout.phtml");
-    $routes = $app->getRouteCollector()->getRouteParser();
-    $renderer->addAttribute('routes', $routes);
+    $router = $app->getRouteCollector()->getRouteParser();
+    $renderer->addAttribute('routes', $router);
+    $messages = $container->get('flash')->getMessages();
+    $renderer->addAttribute('flash', $messages);
 
     return $renderer;
 });

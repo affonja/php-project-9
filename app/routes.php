@@ -15,13 +15,11 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support;
 use DiDom\Exceptions;
+use GuzzleHttp\Psr7;
+use GuzzleHttp\Exception\ClientException;
 
 $app->get('/', function ($request, $response) {
-    $messages = $this->get('flash')->getMessages();
-    $params = [
-        'flash' => $messages
-    ];
-    return $this->get('renderer')->render($response, 'main.phtml', $params);
+    return $this->get('renderer')->render($response, 'main.phtml');
 })->setName('main');
 
 $app->get('/urls', function ($request, $response) {
@@ -35,14 +33,17 @@ SQL;
     $sqlUrls = "SELECT id, name FROM urls ORDER BY id DESC;";
     $urls = $this->get('db')->getAll($sqlUrls, []);
 
-    $urls_keyed = collect(Arr::keyBy($urls, 'id'));
-    $checks_keyed = collect(Arr::keyBy($checks, 'id'));
-    $merged = $urls_keyed->map(function ($item, $key) use ($checks_keyed) {
-        return $checks_keyed->has($key) ? array_merge($item, $checks_keyed->get($key)) : $item;
+//    $urlsKeyed = collect(Arr::keyBy($urls, 'id'));
+//    $checksKeyed = collect(Arr::keyBy($checks, 'id'));
+    $urlsKeyed = collect($urls)->keyBy('id');
+    $checksKeyed = collect($checks)->keyBy('id');
+
+    $merged = $urlsKeyed->map(function ($item, $key) use ($checksKeyed) {
+        return $checksKeyed->has($key) ? array_merge($item, $checksKeyed->get($key)) : $item;
     });
     $params = ['sites' => $merged->all()];
 
-    return $this->get('renderer')->render($response, '/components/urls/index.phtml', $params);
+    return $this->get('renderer')->render($response, '/urls/index.phtml', $params);
 })->setName('urls.index');
 
 $app->post('/urls', function ($request, $response) use ($app) {
@@ -57,11 +58,11 @@ $app->post('/urls', function ($request, $response) use ($app) {
         );
     }
 
-    $normalizedUrl = mb_strtolower(parse_url($url, 0) . '://' . parse_url($url, 1));
+    $normalizedUrl = mb_strtolower(parse_url($url, PHP_URL_SCHEME) . '://' . parse_url($url, PHP_URL_HOST));
     $sql = "SELECT id FROM urls WHERE name=:normalizedUrl";
-    $isExist = !empty($this->get('db')->getAll($sql, ['normalizedUrl' => $normalizedUrl]));
-    if ($isExist) {
-        $id = $this->get('db')->getAll($sql, ['normalizedUrl' => $normalizedUrl])[0]['id'];
+    $urlRecords = $this->get('db')->getFirst($sql, ['normalizedUrl' => $normalizedUrl]);
+    if (!empty($urlRecords)) {
+        $id = $urlRecords['id'];
         $this->get('flash')->addMessage('success', 'Страница уже существует');
         $target = $app->getRouteCollector()->getRouteParser()->urlFor('urls.show', ['url_id' => $id]);
 
@@ -76,32 +77,30 @@ $app->post('/urls', function ($request, $response) use ($app) {
     return $response->withStatus(302)->withHeader('Location', $target);
 })->setName('urls.store');
 
-$app->get('/urls/{url_id}', function ($request, $response, $args) {
-    $messages = $this->get('flash')->getMessages();
-
+$app->get('/urls/{url_id:[0-9]+}', function ($request, $response, $args) {
     $getUrlSql = "SELECT * FROM urls WHERE id=:id";
-    $urlData = $this->get('db')->getAll($getUrlSql, ['id' => $args['url_id']]);
+    $urlData = $this->get('db')->getFirst($getUrlSql, ['id' => $args['url_id']]);
     if (!$urlData) {
-        return $response->withStatus(404)->write('Page not found');
+        $response = $response->withStatus(404);
+        return $this->get('renderer')->render($response, '404.phtml');
     }
     $getChecksSql = "SELECT * FROM url_checks WHERE url_id=:id ORDER BY id DESC ";
     $checksData = $this->get('db')->getAll($getChecksSql, ['id' => $args['url_id']]);
     $params = [
-        'url_id' => $urlData[0]['id'],
-        'site_url' => $urlData[0]['name'],
-        'created' => $urlData[0]['created_at'],
-        'flash' => $messages,
+        'urlId' => $urlData['id'],
+        'siteUrl' => $urlData['name'],
+        'created' => $urlData['created_at'],
         'checks' => $checksData
     ];
-    return $this->get('renderer')->render($response, '/components/urls/show.phtml', $params);
+    return $this->get('renderer')->render($response, '/urls/show.phtml', $params);
 })->setName('urls.show');
 
 $app->post('/urls/{url_id}/checks', function ($request, $response, $args) use ($app) {
-    $url_id = $args['url_id'];
-    $target = $app->getRouteCollector()->getRouteParser()->urlFor('urls.show', ['url_id' => $url_id]);
-    $url_name = $this->get('db')->getAll("SELECT name FROM urls WHERE id=:url_id", ['url_id' => $url_id]);
-    if (!$url_name) {
-        $this->get('flash')->addMessage('error', 'Ошибка запроса к бд');
+    $urlId = $args['url_id'];
+    $target = $app->getRouteCollector()->getRouteParser()->urlFor('urls.show', ['url_id' => $urlId]);
+    $urlName = $this->get('db')->getFirst("SELECT name FROM urls WHERE id=:url_id", ['url_id' => $urlId]);
+    if (!$urlName) {
+        $this->get('flash')->addMessage('danger', 'Ошибка запроса к бд');
         return $response->withStatus(302)->withHeader('Location', $target);
     }
     $date = Carbon::now()->toDateTimeString();
@@ -111,12 +110,13 @@ $app->post('/urls/{url_id}/checks', function ($request, $response, $args) use ($
 
     $client = new GuzzClient();
     try {
-        $response = $client->get($url_name[0]['name']);
+        $response = $client->get($urlName['name']);
     } catch (GuzzExeption $e) {
-        $this->get('flash')->addMessage('error', 'Ошибка при обращении к сайту');
+        $statuscode2 = $response->getStatusCode();
+        $this->get('flash')->addMessage('danger', 'Ошибка при обращении к сайту');
         $statusCode = $e->getCode();
         $this->get('db')->insert($sql, [
-            'url_id' => $url_id,
+            'url_id' => $urlId,
             'statusCode' => $statusCode,
             'h1' => null,
             'title' => null,
@@ -128,12 +128,12 @@ $app->post('/urls/{url_id}/checks', function ($request, $response, $args) use ($
 
     $statusCode = $response->getStatusCode();
     try {
-        $document = new Document($url_name[0]['name'], true);
+        $document = new Document($urlName['name'], true);
         $h1 = optional($document->first('h1'))->text();
         $title = optional($document->first('title'))->text();
         $content = optional($document->first('meta[name="description"]'))->attr('content');
         $this->get('db')->insert($sql, [
-            'url_id' => $url_id,
+            'url_id' => $urlId,
             'statusCode' => $statusCode,
             'h1' => (isset($h1)) ? Support\Str::limit($h1, 255) : null,
             'title' => (isset($title)) ? Support\Str::limit($title, 255) : null,
@@ -144,17 +144,22 @@ $app->post('/urls/{url_id}/checks', function ($request, $response, $args) use ($
         return $response->withStatus(302)->withHeader('Location', $target);
     } catch (Exception $e) {
         $this->get('db')->insert($sql, [
-            'url_id' => $url_id,
+            'url_id' => $urlId,
             'statusCode' => $statusCode,
             'h1' => 'Ошибка при обращении к сайту',
             'title' => 'Ошибка при обращении к сайту',
             'content' => null,
             'date' => $date
         ]);
-        $this->get('flash')->addMessage('error', 'Ошибка при обращении к сайту: ' . $e->getMessage());
+        $this->get('flash')->addMessage('danger', 'Ошибка при обращении к сайту: ' . $e->getMessage());
         return $response->withStatus(302)->withHeader('Location', $target);
     }
 })->setName('urls.checks.store');
+
+$app->map(['GET', 'POST', 'PUT', 'DELETE', 'PATCH'], '/{routes:.+}', function ($request, $response) {
+    $response = $response->withStatus(404);
+    return $this->get('renderer')->render($response, '404.phtml');
+});
 
 function validateUrl(array $url): array
 {
