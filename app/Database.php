@@ -14,7 +14,6 @@ class Database
     public function __construct()
     {
         $this->pdo = $this->connect();
-        $this->createTables();
     }
 
     public function connect(): PDO

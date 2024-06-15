@@ -23,6 +23,8 @@ PHP 8.0, Composer, Make, Postgresql
 >
 > $ make install
 >
+> $ make create
+>
 > $ make start
 
 ## Example

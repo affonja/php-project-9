@@ -11,3 +11,6 @@ lint:
 
 inspect:
 	composer exec --verbose phpstan analyse -- -c phpstan.neon
+
+create:
+	php app/сreate_tables.php
