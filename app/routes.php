@@ -108,7 +108,7 @@ $app->post('/urls/{url_id}/checks', function ($request, $response, $args) use ($
     $client = new Client();
     try {
         $guzzle_response = $client->get($urlName['name'], ['allow_redirects' => false]);
-    } catch (ClientException|ServerException|RequestException|ConnectException $e) {
+    } catch (ClientException | ServerException | RequestException | ConnectException $e) {
         $statusCode = $e->getCode() ?: 0;
         $message = $e->getMessage() ?: 'not connect';
         $this->get('db')->insert($sql, [
@@ -128,7 +128,7 @@ $app->post('/urls/{url_id}/checks', function ($request, $response, $args) use ($
         $h1 = optional($document->first('h1'))->text();
         $title = optional($document->first('title'))->text();
         $content = optional($document->first('meta[name="description"]'))->attr('content');
-    } catch (ErrorException|Exception $e) {
+    } catch (ErrorException | Exception $e) {
         $this->get('db')->insert($sql, [
             'url_id' => $urlId,
             'statusCode' => $e->getCode(),
