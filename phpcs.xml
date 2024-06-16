@@ -1,10 +1,27 @@
 <?xml version="1.0"?>
-<ruleset name="Custom">
-    <description>A custom coding standard.</description>
+<ruleset name="PlatformApi">
 
-    <rule ref="PSR12">
+    <description>PSR12 Laravel standards.</description>
 
-        <exclude name="Generic.Files.LineEndings"/>
-        <exclude name="PSR1.Files.SideEffects"/>
-    </rule>
+    <rule ref="PSR12"/>
+
+    <!--    <arg name="basepath" value="/"/>-->
+    <arg name="colors"/>
+    <arg name="parallel" value="75"/>
+    <arg value="np"/>
+    <arg name="extensions" value="php"/>
+
+    <exclude-pattern>app/Console/Kernel.php</exclude-pattern>
+    <exclude-pattern>app/Http/Controllers/Controller.php</exclude-pattern>
+    <exclude-pattern>bootstrap/cache/*</exclude-pattern>
+    <exclude-pattern>config/*</exclude-pattern>
+    <exclude-pattern>public/index.php</exclude-pattern>
+    <exclude-pattern>storage/framework/views/*</exclude-pattern>
+    <exclude-pattern>server.php</exclude-pattern>
+    <exclude-pattern>*/migrations/*</exclude-pattern>
+    <exclude-pattern>*/seeds/*</exclude-pattern>
+    <exclude-pattern>*/*.blade.php</exclude-pattern>
+    <exclude-pattern>*/*.js</exclude-pattern>
+    <exclude-pattern>vendor/*</exclude-pattern>
+    <exclude-pattern>node_modules/*</exclude-pattern>
 </ruleset>
