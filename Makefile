@@ -14,3 +14,5 @@ inspect:
 
 create:
 	php app/сreate_tables.php
+
+create_and_start: create start
