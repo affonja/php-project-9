@@ -177,13 +177,19 @@ function makeRequest(string $url): ?\GuzzleHttp\Psr7\Response
 
 function parseDocument(string $url): ?array
 {
+    set_error_handler(function ($severity, $message, $file, $line) {
+        throw new ErrorException($message, 0, $severity, $file, $line);
+    });
+
     try {
         $document = new Document($url, true);
         $h1 = optional($document->first('h1'))->text();
         $title = optional($document->first('title'))->text();
         $content = optional($document->first('meta[name="description"]'))->attr('content');
     } catch (ErrorException | Exception $e) {
+        restore_error_handler();
         return null;
     }
+    restore_error_handler();
     return ['h1' => $h1, 'title' => $title, 'content' => $content];
 }
