@@ -13,6 +13,6 @@ inspect:
 	composer exec --verbose phpstan analyse -- -c phpstan.neon
 
 create:
-	php app/сreate_tables.php
+	./bin/create_tables
 
 create_and_start: create start

@@ -3,6 +3,7 @@
 /**
  * @var array $sites
  * @var array $checks
+ * @var Slim\Views\PhpRenderer $this
  */
 
 ?>
@@ -28,7 +29,9 @@
                     foreach ($sites as $site): ?>
                         <tr>
                             <td><?= $site['id']; ?></td>
-                            <td><a href="/urls/<?= $site['id']; ?>"><?= $site['name']; ?></a></td>
+                            <td><a href="<?= $this->getAttribute('routes')
+                                    ->urlFor('urls.show', ['url_id' => $site['id']]); ?>">
+                                    <?= $site['name']; ?></a></td>
                             <td><?= $site['last_check'] ?? ''; ?></td>
                             <td><?= $site['status_code'] ?? ''; ?></td>
                         </tr>

@@ -98,55 +98,49 @@ $app->post('/urls/{url_id}/checks', function ($request, $response, $args) use ($
 
     if (!$urlName) {
         $this->get('flash')->addMessage('danger', 'Ошибка запроса к бд');
-        return $response->withStatus(302)->withHeader('Location', $target);
+        $response = $response->withStatus(404);
+        return $this->get('renderer')->render($response, '404.phtml');
     }
 
     $date = Carbon::now()->toDateTimeString();
     $sql = "INSERT INTO url_checks(url_id, status_code, h1, title, description, created_at)
             VALUES (:url_id, :statusCode, :h1, :title, :content, :date);";
 
-    $client = new Client();
-    try {
-        $guzzle_response = $client->get($urlName['name'], ['allow_redirects' => false]);
-    } catch (ClientException|ServerException|RequestException|ConnectException $e) {
-        $statusCode = $e->getCode() ?: 0;
-        $message = $e->getMessage() ?: 'not connect';
+    $guzzle_response = makeRequest($urlName['name']);
+    if ($guzzle_response === null) {
+        $this->get('db')->insert($sql, [
+            'url_id' => $urlId,
+            'statusCode' => 0,
+            'h1' => null,
+            'title' => null,
+            'content' => 'Сервер не доступен',
+            'date' => $date
+        ]);
+        $this->get('flash')->addMessage('danger', "Сервер не доступен");
+        return $response->withStatus(302)->withHeader('Location', $target);
+    }
+
+    $statusCode = $guzzle_response->getStatusCode();
+    $document = parseDocument($urlName['name']);
+    if ($document === null) {
         $this->get('db')->insert($sql, [
             'url_id' => $urlId,
             'statusCode' => $statusCode,
             'h1' => null,
             'title' => null,
-            'content' => null,
-            'date' => $date
-        ]);
-        $this->get('flash')->addMessage('danger', "$statusCode $message");
-        return $response->withStatus(302)->withHeader('Location', $target);
-    }
-
-    try {
-        $document = new Document($urlName['name'], true);
-        $h1 = optional($document->first('h1'))->text();
-        $title = optional($document->first('title'))->text();
-        $content = optional($document->first('meta[name="description"]'))->attr('content');
-    } catch (ErrorException|Exception $e) {
-        $this->get('db')->insert($sql, [
-            'url_id' => $urlId,
-            'statusCode' => $guzzle_response->getStatusCode(),
-            'h1' => null,
-            'title' => null,
             'content' => 'Ошибка при обращении к сайту',
             'date' => $date
         ]);
-        $this->get('flash')->addMessage('danger', $e->getMessage());
+        $this->get('flash')->addMessage('danger', 'Ошибка при обращении к сайту');
         return $response->withStatus(302)->withHeader('Location', $target);
     }
 
     $this->get('db')->insert($sql, [
         'url_id' => $urlId,
-        'statusCode' => $guzzle_response->getStatusCode(),
-        'h1' => (isset($h1)) ? Support\Str::limit($h1, 255) : null,
-        'title' => (isset($title)) ? Support\Str::limit($title, 255) : null,
-        'content' => (isset($content)) ? Support\Str::limit($content, 1000) : null,
+        'statusCode' => $statusCode,
+        'h1' => (isset($document['h1'])) ? Support\Str::limit($document['h1'], 255) : null,
+        'title' => (isset($document['title'])) ? Support\Str::limit($document['title'], 255) : null,
+        'content' => (isset($document['content'])) ? Support\Str::limit($document['content'], 1000) : null,
         'date' => $date
     ]);
 
@@ -166,4 +160,30 @@ function validateUrl(array $url): array
     $v->rule('lengthMax', 'url', 255)->message('URL не должен превышать 255 символов');
     $v->rule('urlActive', 'url')->message('Некорректный URL');
     return ['result' => $v->validate(), 'error' => $v->errors()['url'][0] ?? []];
+}
+
+function makeRequest(string $url): ?\GuzzleHttp\Psr7\Response
+{
+    $client = new Client();
+    try {
+        $response = $client->get($url, ['allow_redirects' => false]);
+    } catch (ClientException | ServerException | RequestException $e) {
+        $response = $e->getResponse();
+    } catch (ConnectException $e) {
+        return null;
+    }
+    return $response;
+}
+
+function parseDocument(string $url): ?array
+{
+    try {
+        $document = new Document($url, true);
+        $h1 = optional($document->first('h1'))->text();
+        $title = optional($document->first('title'))->text();
+        $content = optional($document->first('meta[name="description"]'))->attr('content');
+    } catch (ErrorException | Exception $e) {
+        return null;
+    }
+    return ['h1' => $h1, 'title' => $title, 'content' => $content];
 }

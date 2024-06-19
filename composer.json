@@ -8,6 +8,9 @@
       "name": "affonja"
     }
   ],
+  "bin": [
+    "bin/сreate_tables"
+  ],
   "autoload": {
     "psr-4": {
       "App\\": "app/"
