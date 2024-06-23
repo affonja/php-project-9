@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @var App $app
+ * @var Slim\App<DI\Container> $app
  * @var Database $db
  */
 
@@ -27,15 +27,19 @@ FROM url_checks
 GROUP BY url_id, status_code
 ORDER BY url_id DESC;
 SQL;
+
+    /** @var array<int, array{id: int, status_code: int, last_check:string}> $checks */
     $checks = $this->get('db')->getAll($sqlChecks, []);
     $sqlUrls = "SELECT id, name FROM urls ORDER BY id DESC;";
+
+    /** @var array<int, array{id: int, name: string}> $urls */
     $urls = $this->get('db')->getAll($sqlUrls, []);
 
     $urlsKeyed = collect($urls)->keyBy('id');
     $checksKeyed = collect($checks)->keyBy('id');
 
     $merged = $urlsKeyed->map(function ($item, $key) use ($checksKeyed) {
-        return $checksKeyed->has($key) ? array_merge($item, $checksKeyed->get($key)) : $item;
+        return $checksKeyed->has($key) ? array_merge($item, $checksKeyed->get($key) ?? []) : $item;
     });
     $params = ['sites' => $merged->all()];
 
