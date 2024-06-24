@@ -3,18 +3,18 @@
     <nav class="navbar navbar-expand-lg bg-dark" data-bs-theme="dark" role="tablist">
         <div class="container-fluid">
             <a class="navbar-brand px-1"
-               href="<?= $this->getAttribute('routes')->urlFor('main'); ?>">Анализатор
+               href="<?= $this->getAttribute('router')->urlFor('main'); ?>">Анализатор
                 страниц</a>
 
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav">
                     <li class="nav-item">
                         <a class="nav-link active bg-dark"
-                           href="<?= $this->getAttribute('routes')->urlFor('main'); ?>">Главная</a>
+                           href="<?= $this->getAttribute('router')->urlFor('main'); ?>">Главная</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link bg-dark"
-                           href="<?= $this->getAttribute('routes')->urlFor('urls.index'); ?>">Сайты</a>
+                           href="<?= $this->getAttribute('router')->urlFor('urls.index'); ?>">Сайты</a>
                     </li>
                 </ul>
             </div>
