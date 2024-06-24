@@ -34,7 +34,7 @@
         <div class="row mt-3">
             <h3 class="p-0">Проверки</h3>
             <form method="post" class="p-0"
-                  action="<?= $this->getAttribute('routes')->urlFor('urls.checks.store', ['url_id' => $urlId]); ?>">
+                  action="<?= $this->getAttribute('router')->urlFor('urls.checks.store', ['url_id' => $urlId]); ?>">
                 <button type="submit" class="btn btn-primary col-2 mt-2">Запустить проверку</button>
             </form>
             <table class="table table-bordered table-hover mt-3" data-test="checks">

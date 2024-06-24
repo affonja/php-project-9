@@ -101,43 +101,24 @@ $app->post('/urls/{url_id}/checks', function ($request, $response, $args) use ($
     $urlName = $this->get('db')->getFirst("SELECT name FROM urls WHERE id=:url_id", ['url_id' => $urlId]);
 
     if (!$urlName) {
-        $this->get('flash')->addMessage('danger', 'Ошибка запроса к бд');
+        $this->get('flash')->addMessage('warning', 'URL не существует');
         $response = $response->withStatus(404);
-        return $this->get('renderer')->render($response, '404.phtml');
+        return $response->withStatus(302)->withHeader('Location', $target);
     }
 
     $date = Carbon::now()->toDateTimeString();
     $sql = "INSERT INTO url_checks(url_id, status_code, h1, title, description, created_at)
             VALUES (:url_id, :statusCode, :h1, :title, :content, :date);";
 
-    $guzzle_response = makeRequest($urlName['name']);
-    if ($guzzle_response === null) {
-        $this->get('db')->insert($sql, [
-            'url_id' => $urlId,
-            'statusCode' => 0,
-            'h1' => null,
-            'title' => null,
-            'content' => 'Сервер не доступен',
-            'date' => $date
-        ]);
+    $guzzleResponse = makeRequest($urlName['name']);
+    if ($guzzleResponse === null) {
         $this->get('flash')->addMessage('danger', "Сервер не доступен");
         return $response->withStatus(302)->withHeader('Location', $target);
     }
 
-    $statusCode = $guzzle_response->getStatusCode();
-    $document = parseDocument($urlName['name']);
-    if ($document === null) {
-        $this->get('db')->insert($sql, [
-            'url_id' => $urlId,
-            'statusCode' => $statusCode,
-            'h1' => null,
-            'title' => null,
-            'content' => 'Ошибка при обращении к сайту',
-            'date' => $date
-        ]);
-        $this->get('flash')->addMessage('danger', 'Ошибка при обращении к сайту');
-        return $response->withStatus(302)->withHeader('Location', $target);
-    }
+    $statusCode = $guzzleResponse->getStatusCode();
+    $body = (string)$guzzleResponse->getBody();
+    $document = parseDocument($body);
 
     $this->get('db')->insert($sql, [
         'url_id' => $urlId,
@@ -171,29 +152,19 @@ function makeRequest(string $url): ?\GuzzleHttp\Psr7\Response
     $client = new Client();
     try {
         $response = $client->get($url, ['allow_redirects' => false]);
-    } catch (ClientException | ServerException | RequestException $e) {
+    } catch (RequestException $e) {
         $response = $e->getResponse();
-    } catch (ConnectException $e) {
+    } catch (ConnectException) {
         return null;
     }
     return $response;
 }
 
-function parseDocument(string $url): ?array
+function parseDocument(string $body): array
 {
-    set_error_handler(function ($severity, $message, $file, $line) {
-        throw new ErrorException($message, 0, $severity, $file, $line);
-    });
-
-    try {
-        $document = new Document($url, true);
-        $h1 = optional($document->first('h1'))->text();
-        $title = optional($document->first('title'))->text();
-        $content = optional($document->first('meta[name="description"]'))->attr('content');
-    } catch (ErrorException | Exception $e) {
-        restore_error_handler();
-        return null;
-    }
-    restore_error_handler();
+    $document = new Document($body);
+    $h1 = optional($document->first('h1'))->text();
+    $title = optional($document->first('title'))->text();
+    $content = optional($document->first('meta[name="description"]'))->attr('content');
     return ['h1' => $h1, 'title' => $title, 'content' => $content];
 }

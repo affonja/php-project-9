@@ -29,7 +29,7 @@ $container->set('renderer', function () use ($app, $container) {
     $renderer = new PhpRenderer(__DIR__ . '/../templates');
     $renderer->setLayout("layout.phtml");
     $router = $app->getRouteCollector()->getRouteParser();
-    $renderer->addAttribute('routes', $router);
+    $renderer->addAttribute('router', $router);
     $messages = $container->get('flash')->getMessages();
     $renderer->addAttribute('flash', $messages);
 
