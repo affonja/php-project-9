@@ -109,7 +109,6 @@ $app->post('/urls/{url_id}/checks', function ($request, $response, $args) use ($
     $date = Carbon::now()->toDateTimeString();
     $sql = "INSERT INTO url_checks(url_id, status_code, h1, title, description, created_at)
             VALUES (:url_id, :statusCode, :h1, :title, :content, :date);";
-
     $guzzleResponse = makeRequest($urlName['name']);
     if ($guzzleResponse === null) {
         $this->get('flash')->addMessage('danger', "Сервер не доступен");
@@ -129,7 +128,15 @@ $app->post('/urls/{url_id}/checks', function ($request, $response, $args) use ($
         'date' => $date
     ]);
 
-    $this->get('flash')->addMessage('success', 'Страница успешно проверена');
+    match (true) {
+        $statusCode >= 300 => $this->get('flash')
+            ->addMessage('warning', 'Проверка была выполнена успешно, но сервер ответил с ошибкой'),
+        $statusCode >= 200 => $this->get('flash')
+            ->addMessage('success', 'Страница успешно проверена'),
+        default => $this->get('flash')
+            ->addMessage('danger', 'Неизвестная ошибка'),
+    };
+
     return $response->withStatus(302)->withHeader('Location', $target);
 })->setName('urls.checks.store');
 
